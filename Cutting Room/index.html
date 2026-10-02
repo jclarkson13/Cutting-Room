@@ -1,0 +1,1438 @@
+<meta charset="utf-8">
+<title>The Cutting Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,500&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root{
+    --bg:#EDEAE4;
+    --paper:#F8F6F2;
+    --paper-line:#D8D2C8;
+    --ink:#2A2430;
+    --ink-soft:#6B6270;
+    --ink-faint:#948C97;
+    --accent:#B33F4F;
+    --accent-soft:#F0D3D6;
+    --line:#CBC4BC;
+    --sage:#7C8A6E;
+    --shadow:rgba(42,36,48,0.14);
+    --chip-bg:#F8F6F2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1B1620;
+      --paper:#231D28;
+      --paper-line:#3A3240;
+      --ink:#EEE7EA;
+      --ink-soft:#ACA3B0;
+      --ink-faint:#7C7383;
+      --accent:#E58896;
+      --accent-soft:#4A2E33;
+      --line:#3A3240;
+      --sage:#96A588;
+      --shadow:rgba(0,0,0,0.45);
+      --chip-bg:#2A2330;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1B1620;
+    --paper:#231D28;
+    --paper-line:#3A3240;
+    --ink:#EEE7EA;
+    --ink-soft:#ACA3B0;
+    --ink-faint:#7C7383;
+    --accent:#E58896;
+    --accent-soft:#4A2E33;
+    --line:#3A3240;
+    --sage:#96A588;
+    --hair:#8A6F5C;
+    --shadow:rgba(0,0,0,0.45);
+    --chip-bg:#2A2330;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Manrope', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:38px 28px 64px;
+  }
+  header{
+    text-align:center;
+    margin-bottom:34px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', ui-monospace, monospace;
+    font-size:11.5px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:600;
+  }
+  h1{
+    font-family:'Bodoni Moda', 'Didot', Georgia, serif;
+    font-optical-sizing:auto;
+    font-weight:500;
+    font-size:clamp(2.6rem, 6vw, 4.2rem);
+    letter-spacing:.01em;
+    margin:6px 0 8px;
+    text-wrap:balance;
+  }
+  .sub{
+    color:var(--ink-soft);
+    font-size:15px;
+    max-width:46ch;
+    margin:0 auto;
+    line-height:1.55;
+  }
+  .rule{
+    width:64px;
+    height:1px;
+    background:var(--ink-faint);
+    margin:20px auto 0;
+    opacity:.5;
+  }
+
+  main{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 400px;
+    gap:28px;
+    align-items:start;
+  }
+  @media (max-width:920px){
+    main{grid-template-columns:1fr;}
+  }
+
+  .stage-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:20px 20px 26px;
+    position:sticky;
+    top:20px;
+    box-shadow:0 18px 40px -22px var(--shadow);
+  }
+  @media (max-width:920px){ .stage-card{position:static;} }
+
+  .stage-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:4px;
+  }
+  .stage-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .theme-toggle{
+    display:flex;
+    gap:2px;
+    background:var(--chip-bg);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:2px;
+  }
+  .theme-toggle button{
+    border:none;
+    background:transparent;
+    color:var(--ink-soft);
+    font-size:13px;
+    width:28px;
+    height:26px;
+    border-radius:16px;
+    cursor:pointer;
+  }
+  .theme-toggle button.active{
+    background:var(--ink);
+    color:var(--paper);
+  }
+
+  .canvas-frame{
+    position:relative;
+    border:1px dashed var(--paper-line);
+    border-radius:4px;
+    padding:6px;
+  }
+  .canvas-frame svg{
+    display:block;
+    width:100%;
+    height:auto;
+  }
+  .pin{
+    position:absolute;
+    width:9px;height:9px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 1px 2px var(--shadow);
+  }
+  .pin.tl{top:-5px;left:-5px;} .pin.tr{top:-5px;right:-5px;}
+
+  .tag{
+    margin-top:18px;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:14px 16px;
+    background:var(--chip-bg);
+    border:1px solid var(--line);
+    border-radius:5px;
+  }
+  .tag-hole{
+    width:8px;height:8px;border-radius:50%;
+    border:1.5px solid var(--ink-faint);
+    margin-top:5px;
+    flex:none;
+  }
+  .tag-text .code{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--accent);
+    letter-spacing:.06em;
+    display:block;
+    margin-bottom:3px;
+  }
+  .tag-text .desc{
+    font-size:13.5px;
+    color:var(--ink);
+    line-height:1.5;
+  }
+
+  .actions{
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+  }
+  .btn{
+    flex:1;
+    font-family:'Manrope', sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    padding:11px 14px;
+    border-radius:5px;
+    border:1px solid var(--line);
+    background:var(--chip-bg);
+    color:var(--ink);
+    cursor:pointer;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:hover{ border-color:var(--ink-faint); }
+  .btn:active{ transform:scale(.97); }
+  .btn.primary{
+    background:var(--accent);
+    color:#fff;
+    border-color:var(--accent);
+  }
+  .toast{
+    position:fixed;
+    bottom:22px;
+    left:50%;
+    transform:translateX(-50%) translateY(12px);
+    background:var(--ink);
+    color:var(--paper);
+    font-size:13px;
+    font-weight:500;
+    padding:10px 18px;
+    border-radius:16px;
+    max-width:min(90vw, 360px);
+    overflow-wrap:break-word;
+    text-align:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:50;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .panel{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  section.group{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:16px 16px 18px;
+  }
+  .group h2{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 12px;
+    font-weight:600;
+  }
+  .chip-row{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:8px;
+  }
+  .chip-row.n3{ grid-template-columns:repeat(3, 1fr); }
+  .chip-row.n4{ grid-template-columns:repeat(4, 1fr); }
+  .chip-row.n6{ grid-template-columns:repeat(6, 1fr); }
+
+  .chip{
+    background:var(--chip-bg);
+    border:1.5px solid var(--line);
+    border-radius:6px;
+    padding:6px 4px 7px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    transition:border-color .12s ease, background .12s ease;
+  }
+  .chip svg{ width:34px; height:42px; overflow:visible; }
+  .chip .lbl{
+    font-size:9.5px;
+    font-weight:600;
+    letter-spacing:.02em;
+    color:var(--ink-soft);
+    text-align:center;
+    line-height:1.15;
+  }
+  .chip:hover{ border-color:var(--ink-faint); }
+  .chip.active{
+    border-color:var(--accent);
+    background:var(--accent-soft);
+  }
+  .chip.active .lbl{ color:var(--ink); }
+  .chip:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+
+  .swatch-dot{
+    width:28px; height:28px;
+    border-radius:50%;
+    border:2px solid var(--paper);
+    outline:1.5px solid var(--line);
+    margin:6px 0 3px;
+    flex:none;
+  }
+  .chip-custom{ position:relative; }
+  .swatch-dot-custom{
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px;
+    background:var(--chip-bg);
+    color:var(--ink-soft);
+    border-style:dashed;
+  }
+  .chip-custom:focus-within{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+  input[type="color"]{
+    position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+  }
+
+  .pattern-dot{
+    width:34px; height:28px;
+    border-radius:5px;
+    border:1.5px solid var(--line);
+    margin:6px 0 3px;
+    flex:none;
+    background-color:#d8d2c8;
+  }
+  .p-solid{}
+  .p-dots{ background-image:radial-gradient(var(--ink-faint) 1.6px, transparent 1.6px); background-size:9px 9px; }
+  .p-stripes{ background-image:repeating-linear-gradient(0deg, var(--ink-faint) 0 4px, transparent 4px 10px); }
+  .p-gingham{
+    background-image:
+      repeating-linear-gradient(90deg, rgba(107,98,112,.35) 0 6px, transparent 6px 14px),
+      repeating-linear-gradient(0deg, rgba(107,98,112,.35) 0 6px, transparent 6px 14px);
+  }
+  .p-floral{ background-image:radial-gradient(var(--ink-faint) 1.4px, transparent 1.4px); background-size:7px 7px; background-position:0 0, 4px 4px; }
+
+  .croquis-line{ fill:none; stroke:var(--ink-soft); stroke-width:3; stroke-linecap:round; }
+  .croquis-skin{ fill:var(--paper); stroke:var(--ink-soft); stroke-width:2.2; }
+
+  footer{
+    text-align:center;
+    margin-top:40px;
+    color:var(--ink-faint);
+    font-size:12px;
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing:.04em;
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Made to Measure &middot; Pattern No. 014</div>
+    <h1>The Cutting Room</h1>
+    <p class="sub">Draft a silhouette, choose the neckline and sleeve, then cut it from whatever fabric you like. Every choice redraws the croquis live.</p>
+    <div class="rule"></div>
+  </header>
+
+  <main>
+    <div class="stage-card">
+      <div class="stage-top">
+        <span class="stage-label">Croquis &middot; Front View</span>
+        <div class="theme-toggle" id="themeToggle">
+          <button data-t="light" title="Light">&#9728;</button>
+          <button data-t="system" class="active" title="System">&#9680;</button>
+          <button data-t="dark" title="Dark">&#9789;</button>
+        </div>
+      </div>
+      <div class="canvas-frame">
+        <span class="pin tl"></span><span class="pin tr"></span>
+        <svg id="stage" viewBox="0 0 400 620" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="fabricPattern" patternUnits="userSpaceOnUse" width="20" height="20"></pattern>
+          </defs>
+          <g id="gLegs"></g>
+          <g id="gArms"></g>
+          <g id="gNeck"></g>
+          <g id="gHead"></g>
+          <g id="gFace"></g>
+          <g id="gBodice"></g>
+          <g id="gSkirt"></g>
+          <g id="gSleeves"></g>
+          <g id="gWaist"></g>
+          <g id="gJewelry"></g>
+        </svg>
+      </div>
+      <div class="tag">
+        <span class="tag-hole"></span>
+        <div class="tag-text">
+          <span class="code" id="styleCode">STYLE NO. 001</span>
+          <span class="desc" id="styleDesc">Round neck &middot; sleeveless &middot; A-line knee in berry</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="randomizeBtn">&#127922; Surprise Me</button>
+        <button class="btn primary" id="shareBtn">&#128279; Copy Link to This Look</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <section class="group">
+        <h2 id="hairLabel">Hairstyle</h2>
+        <div class="chip-row n5" id="hairRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="hairColorLabel">Hair Color</h2>
+        <div class="chip-row n5" id="hairColorRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="eyebrowsLabel">Eyebrows</h2>
+        <div class="chip-row n4" id="eyebrowsRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="eyesLabel">Eyes</h2>
+        <div class="chip-row n5" id="eyesRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="earsLabel">Ears</h2>
+        <div class="chip-row n3" id="earsRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="noseLabel">Nose</h2>
+        <div class="chip-row n3" id="noseRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="mouthLabel">Mouth</h2>
+        <div class="chip-row n5" id="mouthRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="necklineLabel">Neckline</h2>
+        <div class="chip-row n5" id="necklineRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="sleeveLabel">Sleeve</h2>
+        <div class="chip-row n5" id="sleeveRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="silhouetteLabel">Silhouette</h2>
+        <div class="chip-row n5" id="silhouetteRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="lengthLabel">Length</h2>
+        <div class="chip-row n4" id="lengthRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="waistLabel">Waist</h2>
+        <div class="chip-row n3" id="waistRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="necklaceLabel">Necklace</h2>
+        <div class="chip-row n4" id="necklaceRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="earringsLabel">Earrings</h2>
+        <div class="chip-row n4" id="earringsRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="braceletLabel">Bracelet</h2>
+        <div class="chip-row n4" id="braceletRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="jewelryColorLabel">Jewelry Color</h2>
+        <div class="chip-row n5" id="jewelryColorRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="shoeLabel">Shoes</h2>
+        <div class="chip-row n6" id="shoeRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="shoeColorLabel">Shoe Color</h2>
+        <div class="chip-row n5" id="shoeColorRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="colorLabel">Fabric Color</h2>
+        <div class="chip-row n5" id="colorRow"></div>
+      </section>
+      <section class="group">
+        <h2 id="patternLabel">Fabric Pattern</h2>
+        <div class="chip-row n5" id="patternRow"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>Sketched in-browser &middot; no fabric was harmed</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+
+  var NECKLINES = [
+    {id:'round', label:'Round'},
+    {id:'vneck', label:'V-Neck'},
+    {id:'square', label:'Square'},
+    {id:'sweetheart', label:'Sweetheart'},
+    {id:'halter', label:'Halter'}
+  ];
+  var SLEEVES = [
+    {id:'none', label:'Sleeveless'},
+    {id:'cap', label:'Cap'},
+    {id:'short', label:'Short'},
+    {id:'puff', label:'Puff'},
+    {id:'long', label:'Long'}
+  ];
+  var SILHOUETTES = [
+    {id:'aline', label:'A-Line'},
+    {id:'straight', label:'Sheath'},
+    {id:'full', label:'Full Circle'},
+    {id:'mermaid', label:'Mermaid'},
+    {id:'tiered', label:'Tiered'}
+  ];
+  var LENGTHS = [
+    {id:'mini', label:'Mini', y:330},
+    {id:'knee', label:'Knee', y:418},
+    {id:'midi', label:'Midi', y:494},
+    {id:'maxi', label:'Maxi', y:578}
+  ];
+  var WAISTS = [
+    {id:'none', label:'None'},
+    {id:'belt', label:'Belt'},
+    {id:'bow', label:'Sash Bow'}
+  ];
+  var COLORS = [
+    {id:'berry', hex:'#B33F4F', label:'Berry'},
+    {id:'ink', hex:'#2E2A3D', label:'Ink Navy'},
+    {id:'sage', hex:'#7C8A6E', label:'Sage'},
+    {id:'blush', hex:'#E7B8C2', label:'Blush'},
+    {id:'butter', hex:'#EAD98B', label:'Butter'},
+    {id:'charcoal', hex:'#3A3540', label:'Charcoal'},
+    {id:'ivory', hex:'#F1EADD', label:'Ivory'},
+    {id:'rust', hex:'#B5622E', label:'Rust'},
+    {id:'plum', hex:'#5B3358', label:'Plum'},
+    {id:'sky', hex:'#7FA0C9', label:'Dusty Sky'}
+  ];
+  var PATTERNS = [
+    {id:'solid', label:'Solid'},
+    {id:'dots', label:'Dots'},
+    {id:'stripes', label:'Stripes'},
+    {id:'gingham', label:'Gingham'},
+    {id:'floral', label:'Floral'}
+  ];
+  var HAIRSTYLES = [
+    {id:'bob', label:'Bob'},
+    {id:'waves', label:'Long Waves'},
+    {id:'ponytail', label:'Ponytail'},
+    {id:'bun', label:'Bun'},
+    {id:'pixie', label:'Pixie'}
+  ];
+  var HAIRCOLORS = [
+    {id:'espresso', hex:'#4A3B34', label:'Espresso'},
+    {id:'jetblack', hex:'#221D1F', label:'Jet Black'},
+    {id:'chestnut', hex:'#7A4B32', label:'Chestnut'},
+    {id:'caramel', hex:'#9C6B3E', label:'Caramel'},
+    {id:'honey', hex:'#D8B26A', label:'Honey Blonde'},
+    {id:'ash', hex:'#9B9299', label:'Ash Grey'},
+    {id:'silver', hex:'#D8D3D6', label:'Silver'},
+    {id:'rose', hex:'#C97B8C', label:'Rose'}
+  ];
+  var SHOES = [
+    {id:'bare', label:'Bare'},
+    {id:'flats', label:'Flats'},
+    {id:'heels', label:'Heels'},
+    {id:'boots', label:'Boots'},
+    {id:'sneakers', label:'Sneakers'},
+    {id:'sandals', label:'Sandals'}
+  ];
+  var EYEBROWS = [
+    {id:'none', label:'None'},
+    {id:'straight', label:'Straight'},
+    {id:'arched', label:'Arched'},
+    {id:'soft', label:'Soft'}
+  ];
+  var EYES = [
+    {id:'none', label:'None'},
+    {id:'simple', label:'Simple'},
+    {id:'almond', label:'Almond'},
+    {id:'wink', label:'Wink'},
+    {id:'closed', label:'Closed'}
+  ];
+  var EARS = [
+    {id:'none', label:'None'},
+    {id:'small', label:'Small'},
+    {id:'full', label:'Full'}
+  ];
+  var NOSE = [
+    {id:'none', label:'None'},
+    {id:'line', label:'Line'},
+    {id:'button', label:'Button'}
+  ];
+  var MOUTH = [
+    {id:'none', label:'None'},
+    {id:'neutral', label:'Neutral'},
+    {id:'smile', label:'Smile'},
+    {id:'smirk', label:'Smirk'},
+    {id:'bold', label:'Bold'}
+  ];
+  var SHOECOLORS = [
+    {id:'black', hex:'#2A2430', label:'Black'},
+    {id:'nude', hex:'#D8B48F', label:'Nude'},
+    {id:'tan', hex:'#A9764F', label:'Tan'},
+    {id:'white', hex:'#F3EFE7', label:'White'},
+    {id:'red', hex:'#B33F4F', label:'Red'},
+    {id:'silver', hex:'#C7C2C8', label:'Silver'},
+    {id:'gold', hex:'#C9A227', label:'Gold'}
+  ];
+  var NECKLACES = [
+    {id:'none', label:'None'},
+    {id:'choker', label:'Choker'},
+    {id:'pendant', label:'Pendant'},
+    {id:'statement', label:'Statement'}
+  ];
+  var EARRINGS = [
+    {id:'none', label:'None'},
+    {id:'studs', label:'Studs'},
+    {id:'hoops', label:'Hoops'},
+    {id:'drops', label:'Drops'}
+  ];
+  var BRACELETS = [
+    {id:'none', label:'None'},
+    {id:'bangle', label:'Bangle'},
+    {id:'cuff', label:'Cuff'},
+    {id:'stacked', label:'Stacked'}
+  ];
+  var JEWELRYCOLORS = [
+    {id:'gold', hex:'#C9A227', label:'Gold'},
+    {id:'silver', hex:'#C7C2C8', label:'Silver'},
+    {id:'rosegold', hex:'#D8A48C', label:'Rose Gold'},
+    {id:'pearl', hex:'#F3EFE7', label:'Pearl'},
+    {id:'onyx', hex:'#2A2430', label:'Onyx'}
+  ];
+
+  var state = {
+    hair:'bob', hairColor:'#4A3B34',
+    neckline:'round', sleeve:'none', silhouette:'aline', length:'knee',
+    waist:'none', color:'#B33F4F', pattern:'solid',
+    shoe:'bare', shoeColor:'#2A2430',
+    necklace:'none', earrings:'none', bracelet:'none', jewelryColor:'#C9A227',
+    eyebrows:'none', eyes:'none', ears:'none', nose:'none', mouth:'none'
+  };
+
+  function lerp(a,b,t){ return a+(b-a)*t; }
+
+  function waveEdge(x1,x2,y,amp,waves){
+    var seg=(x2-x1)/waves, s='';
+    for(var i=0;i<waves;i++){
+      var mx=x1+seg*i+seg/2, my=y+((i%2===0)?amp:-amp), ex=x1+seg*(i+1);
+      s+=' Q '+mx+' '+my+' '+ex+' '+y;
+    }
+    return s;
+  }
+
+  function bodicePath(g, neckline){
+    var cx=g.cx, shoulderY=g.shoulderY, waistY=g.waistY, shW=g.shoulderHalfW, wW=g.waistHalfW;
+    var Lx=cx-shW, Rx=cx+shW, Ly=shoulderY, Ry=shoulderY;
+    var wL=cx-wW, wR=cx+wW;
+    var shallow = shoulderY+(waistY-shoulderY)*0.24;
+    var deep = shoulderY+(waistY-shoulderY)*0.46;
+    var top, sLx=Lx, sRx=Rx, sLy=Ly, sRy=Ry, extra=[];
+
+    if(neckline==='vneck'){
+      top = 'L '+cx+' '+deep+' L '+Rx+' '+Ry;
+    } else if(neckline==='square'){
+      var sq = shW*0.5, d = shallow;
+      top = 'L '+(cx-sq)+' '+Ly+' L '+(cx-sq)+' '+d+' L '+(cx+sq)+' '+d+' L '+(cx+sq)+' '+Ry+' L '+Rx+' '+Ry;
+    } else if(neckline==='sweetheart'){
+      var d2 = shallow+10;
+      top = 'Q '+(cx-shW*0.55)+' '+(shoulderY+6)+' '+(cx-shW*0.14)+' '+(d2-12)+
+            ' Q '+cx+' '+d2+' '+(cx+shW*0.14)+' '+(d2-12)+
+            ' Q '+(cx+shW*0.55)+' '+(shoulderY+6)+' '+Rx+' '+Ry;
+    } else if(neckline==='halter'){
+      var inX = shW*0.52, hY = shoulderY+16, d3 = hY+(waistY-hY)*0.22;
+      sLx = cx-inX; sRx = cx+inX; sLy = hY; sRy = hY;
+      top = 'Q '+(cx-inX*0.5)+' '+(d3+8)+' '+cx+' '+(d3+12)+' Q '+(cx+inX*0.5)+' '+(d3+8)+' '+sRx+' '+sRy;
+      extra.push('M '+sLx+' '+sLy+' Q '+(cx-6)+' '+(shoulderY-16)+' '+(cx-3)+' '+(shoulderY-38));
+      extra.push('M '+sRx+' '+sRy+' Q '+(cx+6)+' '+(shoulderY-16)+' '+(cx+3)+' '+(shoulderY-38));
+    } else {
+      top = 'Q '+(cx-shW*0.3)+' '+(shallow+8)+' '+cx+' '+shallow+' Q '+(cx+shW*0.3)+' '+(shallow+8)+' '+Rx+' '+Ry;
+    }
+
+    var dpath = 'M '+sLx+' '+sLy+' '+top+
+      ' C '+(Rx+9)+' '+lerp(sRy,waistY,0.38)+', '+(wR+7)+' '+lerp(sRy,waistY,0.74)+', '+wR+' '+waistY+
+      ' L '+wL+' '+waistY+
+      ' C '+(wL-7)+' '+lerp(sLy,waistY,0.74)+', '+(Lx-9)+' '+lerp(sLy,waistY,0.38)+', '+sLx+' '+sLy+
+      ' Z';
+    return {d:dpath, extra:extra};
+  }
+
+  function skirtPath(g, sil){
+    var cx=g.cx, waistY=g.waistY, wW=g.waistHalfW, hemY=g.hemY;
+    var wL=cx-wW, wR=cx+wW, h=hemY-waistY;
+    if(sil==='straight'){
+      var hw=wW*1.2;
+      return ['M '+wL+' '+waistY+
+        ' C '+(wL-2)+' '+(waistY+h*0.5)+', '+(cx-hw+3)+' '+(hemY-h*0.15)+', '+(cx-hw)+' '+hemY+
+        ' L '+(cx+hw)+' '+hemY+
+        ' C '+(cx+hw-3)+' '+(hemY-h*0.15)+', '+(wR+2)+' '+(waistY+h*0.5)+', '+wR+' '+waistY+' Z'];
+    }
+    if(sil==='aline'){
+      var hw2=Math.min(wW+h*0.36,168);
+      return ['M '+wL+' '+waistY+' L '+(cx-hw2)+' '+hemY+' L '+(cx+hw2)+' '+hemY+' L '+wR+' '+waistY+' Z'];
+    }
+    if(sil==='full'){
+      var hw3=Math.min(wW+h*0.56,182);
+      return ['M '+wL+' '+waistY+
+        ' C '+(cx-hw3*1.04)+' '+(waistY+h*0.32)+', '+(cx-hw3*1.08)+' '+(hemY-h*0.24)+', '+(cx-hw3)+' '+hemY+
+        ' Q '+cx+' '+(hemY+12)+' '+(cx+hw3)+' '+hemY+
+        ' C '+(cx+hw3*1.08)+' '+(hemY-h*0.24)+', '+(cx+hw3*1.04)+' '+(waistY+h*0.32)+', '+wR+' '+waistY+' Z'];
+    }
+    if(sil==='mermaid'){
+      var kneeY=waistY+h*0.76, fitHw=wW+9, flareHw=Math.min(wW+h*0.5,158);
+      return ['M '+wL+' '+waistY+
+        ' C '+(wL-1)+' '+(waistY+(kneeY-waistY)*0.5)+', '+(cx-fitHw)+' '+(kneeY-16)+', '+(cx-fitHw)+' '+kneeY+
+        ' C '+(cx-fitHw-8)+' '+(kneeY+(hemY-kneeY)*0.4)+', '+(cx-flareHw)+' '+(hemY-14)+', '+(cx-flareHw)+' '+hemY+
+        ' L '+(cx+flareHw)+' '+hemY+
+        ' C '+(cx+flareHw)+' '+(hemY-14)+', '+(cx+fitHw+8)+' '+(kneeY+(hemY-kneeY)*0.4)+', '+(cx+fitHw)+' '+kneeY+
+        ' C '+(cx+fitHw)+' '+(kneeY-16)+', '+wR+' '+(waistY+(kneeY-waistY)*0.5)+', '+wR+' '+waistY+' Z'];
+    }
+    if(sil==='tiered'){
+      var t1=waistY+h*0.34, t2=waistY+h*0.66;
+      var hw0=wW, hw1=wW+h*0.20, hw2=wW+h*0.40, hw3=wW+h*0.64;
+      var tierA = 'M '+(cx-hw0)+' '+waistY+' L '+(cx-hw1)+' '+t1+' L '+(cx+hw1)+' '+t1+' L '+(cx+hw0)+' '+waistY+' Z';
+      var tierB = 'M '+(cx-hw1*0.94)+' '+t1+' L '+(cx-hw2)+' '+t2+' L '+(cx+hw2)+' '+t2+' L '+(cx+hw1*0.94)+' '+t1+' Z';
+      var tierC = 'M '+(cx-hw2*0.94)+' '+t2+' L '+(cx-hw3)+' '+hemY+waveEdge(cx-hw3,cx+hw3,hemY,7,5)+' L '+(cx+hw3)+' '+hemY+' L '+(cx+hw2*0.94)+' '+t2+' Z';
+      return [tierA, tierB, tierC];
+    }
+    return ['M '+wL+' '+waistY+' L '+(cx-wW)+' '+hemY+' L '+(cx+wW)+' '+hemY+' L '+wR+' '+waistY+' Z'];
+  }
+
+  function hairPath(cx, cy, rx, ry, style){
+    var browY = cy - ry*0.32, crownY = cy - ry*1.44;
+    var Lx = cx-rx*1.05, Rx = cx+rx*1.05;
+
+    if(style==='waves'){
+      return ['M '+Lx+' '+browY+
+        ' Q '+cx+' '+crownY+' '+Rx+' '+browY+
+        ' Q '+(cx+rx*1.35)+' '+(cy+ry*1.6)+' '+(cx+rx*1.15)+' '+(cy+ry*3.2)+
+        ' Q '+(cx+rx*1.05)+' '+(cy+ry*4.3)+' '+(cx+rx*0.55)+' '+(cy+ry*5.2)+
+        ' Q '+(cx+rx*0.85)+' '+(cy+ry*2.5)+' '+cx+' '+(cy+ry*0.1)+
+        ' Q '+(cx-rx*0.85)+' '+(cy+ry*2.5)+' '+(cx-rx*0.55)+' '+(cy+ry*5.2)+
+        ' Q '+(cx-rx*1.05)+' '+(cy+ry*4.3)+' '+(cx-rx*1.15)+' '+(cy+ry*3.2)+
+        ' Q '+(cx-rx*1.35)+' '+(cy+ry*1.6)+' '+Lx+' '+browY+' Z'];
+    }
+    if(style==='ponytail'){
+      var capD = 'M '+(cx-rx*0.95)+' '+(cy-ry*0.2)+
+        ' Q '+cx+' '+(cy-ry*1.4)+' '+(cx+rx*0.95)+' '+(cy-ry*0.2)+
+        ' Q '+(cx+rx*1.0)+' '+(cy+ry*0.5)+' '+(cx+rx*0.75)+' '+(cy+ry*0.85)+
+        ' L '+(cx-rx*0.75)+' '+(cy+ry*0.85)+
+        ' Q '+(cx-rx*1.0)+' '+(cy+ry*0.5)+' '+(cx-rx*0.95)+' '+(cy-ry*0.2)+' Z';
+      var tailD = 'M '+(cx+rx*0.8)+' '+(cy-ry*0.3)+
+        ' Q '+(cx+rx*1.6)+' '+(cy+ry*0.2)+' '+(cx+rx*1.35)+' '+(cy+ry*2.4)+
+        ' Q '+(cx+rx*1.2)+' '+(cy+ry*3.6)+' '+(cx+rx*0.75)+' '+(cy+ry*4.2)+
+        ' Q '+(cx+rx*0.95)+' '+(cy+ry*2.2)+' '+(cx+rx*0.55)+' '+(cy+ry*0.6)+' Z';
+      return [capD, tailD];
+    }
+    if(style==='bun'){
+      var capD2 = 'M '+(cx-rx*0.95)+' '+(cy-ry*0.2)+
+        ' Q '+cx+' '+(cy-ry*1.35)+' '+(cx+rx*0.95)+' '+(cy-ry*0.2)+
+        ' Q '+(cx+rx*1.0)+' '+(cy+ry*0.5)+' '+(cx+rx*0.75)+' '+(cy+ry*0.85)+
+        ' L '+(cx-rx*0.75)+' '+(cy+ry*0.85)+
+        ' Q '+(cx-rx*1.0)+' '+(cy+ry*0.5)+' '+(cx-rx*0.95)+' '+(cy-ry*0.2)+' Z';
+      var bunCx = cx, bunCy = cy-ry*1.5, bunR = rx*0.44;
+      var bunD = 'M '+(bunCx-bunR)+' '+bunCy+
+        ' Q '+bunCx+' '+(bunCy-bunR*1.3)+' '+(bunCx+bunR)+' '+bunCy+
+        ' Q '+bunCx+' '+(bunCy+bunR*1.3)+' '+(bunCx-bunR)+' '+bunCy+' Z';
+      return [capD2, bunD];
+    }
+    if(style==='pixie'){
+      return ['M '+(cx-rx*0.95)+' '+(cy-ry*0.15)+
+        ' Q '+(cx-rx*1.05)+' '+(cy-ry*0.9)+' '+(cx-rx*0.55)+' '+(cy-ry*1.15)+
+        waveEdge(cx-rx*0.55, cx+rx*0.55, cy-ry*1.15, ry*0.14, 3) +
+        ' Q '+(cx+rx*1.05)+' '+(cy-ry*0.9)+' '+(cx+rx*0.95)+' '+(cy-ry*0.15)+
+        ' Q '+(cx+rx*0.6)+' '+(cy+ry*0.05)+' '+cx+' '+(cy-ry*0.02)+
+        ' Q '+(cx-rx*0.6)+' '+(cy+ry*0.05)+' '+(cx-rx*0.95)+' '+(cy-ry*0.15)+' Z'];
+    }
+    return ['M '+Lx+' '+browY+
+      ' Q '+cx+' '+crownY+' '+Rx+' '+browY+
+      ' Q '+(cx+rx*1.10)+' '+(cy+ry*0.8)+' '+(cx+rx*0.71)+' '+(cy+ry*1.36)+
+      ' Q '+(cx+rx*0.90)+' '+(cy+ry*0.24)+' '+cx+' '+(cy+ry*0.04)+
+      ' Q '+(cx-rx*0.90)+' '+(cy+ry*0.24)+' '+(cx-rx*0.71)+' '+(cy+ry*1.36)+
+      ' Q '+(cx-rx*1.10)+' '+(cy+ry*0.8)+' '+Lx+' '+browY+' Z'];
+  }
+
+  function eyebrowsMarkup(cx, cy, rx, ry, style){
+    if(style==='none') return '';
+    var browY = cy - ry*0.26;
+    var exL = cx-rx*0.42, exR = cx+rx*0.42, w = rx*0.22;
+    function one(ex){
+      if(style==='straight') return '<path d="M '+(ex-w)+' '+browY+' L '+(ex+w)+' '+browY+'" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>';
+      if(style==='arched') return '<path d="M '+(ex-w)+' '+(browY+1.5)+' Q '+ex+' '+(browY-2.5)+' '+(ex+w)+' '+(browY+1)+'" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>';
+      if(style==='soft') return '<path d="M '+(ex-w)+' '+browY+' Q '+ex+' '+(browY-1)+' '+(ex+w)+' '+(browY+1.5)+'" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round"/>';
+      return '';
+    }
+    return one(exL)+one(exR);
+  }
+
+  function eyesMarkup(cx, cy, rx, ry, style){
+    if(style==='none') return '';
+    var eyeY = cy - ry*0.04;
+    var exL = cx-rx*0.42, exR = cx+rx*0.42, w = rx*0.16, h = ry*0.1;
+    function one(ex, side){
+      if(style==='simple') return '<ellipse cx="'+ex+'" cy="'+eyeY+'" rx="'+w+'" ry="'+h+'" fill="var(--ink)"/>';
+      if(style==='almond') return '<path d="M '+(ex-w*1.4)+' '+eyeY+' Q '+ex+' '+(eyeY-h*1.8)+' '+(ex+w*1.4)+' '+eyeY+' Q '+ex+' '+(eyeY+h*1.4)+' '+(ex-w*1.4)+' '+eyeY+' Z" fill="none" stroke="var(--ink)" stroke-width="1.2"/><circle cx="'+ex+'" cy="'+eyeY+'" r="'+(h*0.9)+'" fill="var(--ink)"/>';
+      if(style==='closed') return '<path d="M '+(ex-w*1.3)+' '+eyeY+' Q '+ex+' '+(eyeY+h*1.6)+' '+(ex+w*1.3)+' '+eyeY+'" fill="none" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round"/>';
+      if(style==='wink'){
+        if(side<0) return '<path d="M '+(ex-w*1.3)+' '+eyeY+' Q '+ex+' '+(eyeY+h*1.6)+' '+(ex+w*1.3)+' '+eyeY+'" fill="none" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round"/>';
+        return '<ellipse cx="'+ex+'" cy="'+eyeY+'" rx="'+w+'" ry="'+h+'" fill="var(--ink)"/>'+
+          '<path d="M '+(ex-w*1.6)+' '+(eyeY-h*2.2)+' Q '+ex+' '+(eyeY-h*3.4)+' '+(ex+w*1.6)+' '+(eyeY-h*2)+'" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round"/>';
+      }
+      return '';
+    }
+    return one(exL,-1)+one(exR,1);
+  }
+
+  function noseMarkup(cx, cy, rx, ry, style){
+    if(style==='none') return '';
+    var topY = cy - ry*0.02, botY = cy+ry*0.32;
+    if(style==='line') return '<path d="M '+cx+' '+topY+' L '+(cx+rx*0.06)+' '+botY+'" stroke="var(--ink-soft)" stroke-width="1.2" stroke-linecap="round" fill="none"/>';
+    if(style==='button') return '<path d="M '+cx+' '+topY+' L '+(cx+rx*0.05)+' '+botY+'" stroke="var(--ink-soft)" stroke-width="1.2" stroke-linecap="round" fill="none"/>'+
+      '<circle cx="'+(cx+rx*0.08)+'" cy="'+(botY+1)+'" r="'+(rx*0.05)+'" fill="none" stroke="var(--ink-soft)" stroke-width="1"/>';
+    return '';
+  }
+
+  function mouthMarkup(cx, cy, rx, ry, style){
+    if(style==='none') return '';
+    var mouthY = cy + ry*0.5, w = rx*0.26;
+    if(style==='neutral') return '<path d="M '+(cx-w)+' '+mouthY+' L '+(cx+w)+' '+mouthY+'" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" fill="none"/>';
+    if(style==='smile') return '<path d="M '+(cx-w)+' '+mouthY+' Q '+cx+' '+(mouthY+w*0.9)+' '+(cx+w)+' '+mouthY+'" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>';
+    if(style==='smirk') return '<path d="M '+(cx-w)+' '+(mouthY+1)+' Q '+cx+' '+(mouthY+w*0.5)+' '+(cx+w*1.1)+' '+(mouthY-2)+'" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>';
+    if(style==='bold') return '<path d="M '+(cx-w*1.1)+' '+mouthY+' Q '+cx+' '+(mouthY+w*1.1)+' '+(cx+w*1.1)+' '+mouthY+' Q '+cx+' '+(mouthY+w*0.3)+' '+(cx-w*1.1)+' '+mouthY+' Z" fill="var(--accent-soft)" stroke="var(--ink)" stroke-width="1.2"/>';
+    return '';
+  }
+
+  function earsMarkup(cx, cy, rx, ry, style){
+    if(style==='none') return '';
+    var exL = cx-rx*1.0, exR = cx+rx*1.0, earY = cy+ry*0.2, w = rx*0.16, h = ry*0.22;
+    function one(ex, side){
+      if(style==='small') return '<path d="M '+ex+' '+(earY-h)+' Q '+(ex+side*w*1.6)+' '+earY+' '+ex+' '+(earY+h)+'" fill="var(--paper)" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+      if(style==='full') return '<path d="M '+ex+' '+(earY-h*1.2)+' Q '+(ex+side*w*2)+' '+earY+' '+ex+' '+(earY+h*1.2)+' Q '+(ex+side*w*0.6)+' '+earY+' '+ex+' '+(earY-h*1.2)+' Z" fill="var(--paper)" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+      return '';
+    }
+    return one(exL,-1)+one(exR,1);
+  }
+
+  function sleevePath(cx, shW, shoulderY, side, type, waistY){
+    var sx=cx+side*shW, sy=shoulderY;
+    if(type==='none') return null;
+    if(type==='cap'){
+      return 'M '+sx+' '+sy+
+        ' Q '+(sx+side*24)+' '+(sy+6)+' '+(sx+side*20)+' '+(sy+18)+
+        ' Q '+(sx+side*10)+' '+(sy+24)+' '+(sx+side*2)+' '+(sy+20)+
+        ' Q '+(sx-side*2)+' '+(sy+8)+' '+sx+' '+sy+' Z';
+    }
+    if(type==='short'){
+      return 'M '+sx+' '+sy+
+        ' Q '+(sx+side*28)+' '+(sy+8)+' '+(sx+side*25)+' '+(sy+30)+
+        ' L '+(sx+side*20)+' '+(sy+60)+
+        ' L '+(sx+side*6)+' '+(sy+56)+
+        ' L '+(sx+side*9)+' '+(sy+28)+
+        ' Q '+(sx-side*2)+' '+(sy+8)+' '+sx+' '+sy+' Z';
+    }
+    if(type==='puff'){
+      return 'M '+sx+' '+sy+
+        ' Q '+(sx+side*42)+' '+(sy+10)+' '+(sx+side*30)+' '+(sy+32)+
+        ' Q '+(sx+side*24)+' '+(sy+46)+' '+(sx+side*13)+' '+(sy+48)+
+        ' L '+(sx+side*2)+' '+(sy+46)+
+        ' Q '+(sx-side*6)+' '+(sy+20)+' '+sx+' '+sy+' Z';
+    }
+    if(type==='long'){
+      var wristY=waistY-6;
+      return 'M '+sx+' '+sy+
+        ' Q '+(sx+side*30)+' '+(sy+8)+' '+(sx+side*27)+' '+(sy+32)+
+        ' L '+(sx+side*21)+' '+(wristY-45)+
+        ' L '+(sx+side*14)+' '+wristY+
+        ' L '+(sx+side*3)+' '+(wristY-5)+
+        ' L '+(sx+side*9)+' '+(sy+35)+
+        ' Q '+(sx-side*3)+' '+(sy+6)+' '+sx+' '+sy+' Z';
+    }
+  }
+
+  function shoePath(fx, topY, side, style, scale){
+    var s = scale||1;
+    function o(v){ return v*s; }
+    if(style==='bare') return {fills:[], lines:[]};
+    if(style==='sandals'){
+      var strap1 = 'M '+(fx-o(7))+' '+(topY-o(6))+' Q '+fx+' '+(topY-o(3))+' '+(fx+o(7))+' '+(topY-o(6));
+      var strap2 = 'M '+(fx-o(6))+' '+(topY-o(1))+' Q '+fx+' '+(topY+o(2))+' '+(fx+o(6))+' '+(topY-o(1));
+      return {fills:[], lines:[strap1, strap2]};
+    }
+
+    var w = style==='sneakers' ? o(8.5) : o(7);
+    var len = style==='heels' ? o(11) : (style==='sneakers' ? o(15) : o(14));
+    var scoop = o(4);
+    function wedge(ty){
+      return 'M '+(fx-w)+' '+ty+
+        ' Q '+(fx-w)+' '+(ty-scoop)+' '+fx+' '+(ty-scoop)+
+        ' Q '+(fx+w)+' '+(ty-scoop)+' '+(fx+w)+' '+ty+
+        ' Q '+(fx+w)+' '+(ty+len*0.72)+' '+fx+' '+(ty+len)+
+        ' Q '+(fx-w)+' '+(ty+len*0.72)+' '+(fx-w)+' '+ty+
+        ' Z';
+    }
+
+    var fills = [], lines = [];
+    if(style==='boots'){
+      var shaftW = o(6.5);
+      var shaft = 'M '+(fx-shaftW)+' '+(topY-o(28))+' L '+(fx+shaftW)+' '+(topY-o(28))+
+        ' L '+(fx+shaftW+o(1))+' '+topY+' L '+(fx-shaftW-o(1))+' '+topY+' Z';
+      fills.push(shaft);
+    }
+    fills.push(wedge(topY));
+    if(style==='heels'){
+      lines.push('M '+(fx-w)+' '+(topY-o(1))+' Q '+fx+' '+(topY+o(2.5))+' '+(fx+w)+' '+(topY-o(1)));
+    }
+    if(style==='sneakers'){
+      lines.push('M '+(fx-w*0.9)+' '+(topY+o(9))+' Q '+fx+' '+(topY+o(12))+' '+(fx+w*0.9)+' '+(topY+o(9)));
+    }
+    return {fills:fills, lines:lines};
+  }
+
+  function necklaceMarkup(cx, baseY, style, color, scale){
+    var s = scale||1;
+    function o(v){ return v*s; }
+    if(style==='choker'){
+      return '<path d="M '+(cx-o(14))+' '+baseY+' Q '+cx+' '+(baseY+o(8))+' '+(cx+o(14))+' '+baseY+'" fill="none" stroke="'+color+'" stroke-width="'+o(3)+'" stroke-linecap="round"/>'+
+        '<circle cx="'+cx+'" cy="'+(baseY+o(7))+'" r="'+o(1.8)+'" fill="'+color+'"/>';
+    }
+    if(style==='pendant'){
+      var dipY = baseY+o(22);
+      return '<path d="M '+(cx-o(15))+' '+baseY+' Q '+cx+' '+dipY+' '+(cx+o(15))+' '+baseY+'" fill="none" stroke="'+color+'" stroke-width="'+o(1.4)+'"/>'+
+        '<circle cx="'+cx+'" cy="'+(dipY+o(3))+'" r="'+o(4)+'" fill="'+color+'"/>';
+    }
+    if(style==='statement'){
+      var dip1 = baseY+o(14), dip2 = baseY+o(26);
+      return '<path d="M '+(cx-o(16))+' '+baseY+' Q '+cx+' '+dip1+' '+(cx+o(16))+' '+baseY+'" fill="none" stroke="'+color+'" stroke-width="'+o(1.3)+'"/>'+
+        '<path d="M '+(cx-o(12))+' '+baseY+' Q '+cx+' '+dip2+' '+(cx+o(12))+' '+baseY+'" fill="none" stroke="'+color+'" stroke-width="'+o(1.3)+'"/>'+
+        '<circle cx="'+cx+'" cy="'+(dip2+o(2))+'" r="'+o(5)+'" fill="'+color+'"/>'+
+        '<circle cx="'+(cx-o(7))+'" cy="'+(dip2-o(2))+'" r="'+o(2.4)+'" fill="'+color+'"/>'+
+        '<circle cx="'+(cx+o(7))+'" cy="'+(dip2-o(2))+'" r="'+o(2.4)+'" fill="'+color+'"/>';
+    }
+    return '';
+  }
+
+  function earringMarkup(exL, exR, ey, style, color, scale){
+    var s = scale||1;
+    function o(v){ return v*s; }
+    function one(ex){
+      if(style==='studs') return '<circle cx="'+ex+'" cy="'+ey+'" r="'+o(2)+'" fill="'+color+'"/>';
+      if(style==='hoops') return '<circle cx="'+ex+'" cy="'+(ey+o(3))+'" r="'+o(4)+'" fill="none" stroke="'+color+'" stroke-width="'+o(1.4)+'"/>';
+      if(style==='drops') return '<path d="M '+ex+' '+ey+' L '+ex+' '+(ey+o(8))+'" stroke="'+color+'" stroke-width="'+o(1.2)+'"/><circle cx="'+ex+'" cy="'+(ey+o(11))+'" r="'+o(2.6)+'" fill="'+color+'"/>';
+      return '';
+    }
+    if(style==='none') return '';
+    return one(exL)+one(exR);
+  }
+
+  function braceletMarkup(x, y, style, color, scale){
+    var s = scale||1;
+    function o(v){ return v*s; }
+    if(style==='bangle'){
+      return '<ellipse cx="'+x+'" cy="'+y+'" rx="'+o(6)+'" ry="'+o(3)+'" fill="none" stroke="'+color+'" stroke-width="'+o(1.6)+'"/>';
+    }
+    if(style==='cuff'){
+      return '<ellipse cx="'+x+'" cy="'+y+'" rx="'+o(7)+'" ry="'+o(5)+'" fill="'+color+'" stroke="var(--ink)" stroke-width="1"/>';
+    }
+    if(style==='stacked'){
+      return '<ellipse cx="'+x+'" cy="'+(y-o(3))+'" rx="'+o(6)+'" ry="'+o(2.2)+'" fill="none" stroke="'+color+'" stroke-width="'+o(1.3)+'"/>'+
+        '<ellipse cx="'+x+'" cy="'+y+'" rx="'+o(6)+'" ry="'+o(2.2)+'" fill="none" stroke="'+color+'" stroke-width="'+o(1.3)+'"/>'+
+        '<ellipse cx="'+x+'" cy="'+(y+o(3))+'" rx="'+o(6)+'" ry="'+o(2.2)+'" fill="none" stroke="'+color+'" stroke-width="'+o(1.3)+'"/>';
+    }
+    return '';
+  }
+
+  function luminance(hex){
+    var r=parseInt(hex.substr(1,2),16), g=parseInt(hex.substr(3,2),16), b=parseInt(hex.substr(5,2),16);
+    return (0.299*r+0.587*g+0.114*b)/255;
+  }
+  function contrastFor(hex){ return luminance(hex) > 0.55 ? '#2A2430' : '#F5F1EC'; }
+
+  function buildPatternDefs(color, pattern){
+    var contrast = contrastFor(color);
+    var pat = document.getElementById('fabricPattern');
+    var w=20,h=20, inner='<rect width="'+w+'" height="'+h+'" fill="'+color+'"/>';
+    if(pattern==='dots'){
+      inner += '<circle cx="5" cy="5" r="2" fill="'+contrast+'" opacity="0.8"/><circle cx="15" cy="15" r="2" fill="'+contrast+'" opacity="0.8"/>';
+    } else if(pattern==='stripes'){
+      inner += '<rect x="0" y="0" width="20" height="7" fill="'+contrast+'" opacity="0.75"/>';
+    } else if(pattern==='gingham'){
+      inner += '<rect x="0" y="0" width="10" height="20" fill="'+contrast+'" opacity="0.28"/><rect x="0" y="0" width="20" height="10" fill="'+contrast+'" opacity="0.28"/>';
+    } else if(pattern==='floral'){
+      w=24;h=24;
+      inner = '<rect width="24" height="24" fill="'+color+'"/>';
+      function rosette(cx,cy){
+        return '<circle cx="'+cx+'" cy="'+cy+'" r="1.3" fill="'+contrast+'" opacity="0.9"/>'+
+          '<circle cx="'+(cx-3)+'" cy="'+cy+'" r="1.1" fill="'+contrast+'" opacity="0.6"/>'+
+          '<circle cx="'+(cx+3)+'" cy="'+cy+'" r="1.1" fill="'+contrast+'" opacity="0.6"/>'+
+          '<circle cx="'+cx+'" cy="'+(cy-3)+'" r="1.1" fill="'+contrast+'" opacity="0.6"/>'+
+          '<circle cx="'+cx+'" cy="'+(cy+3)+'" r="1.1" fill="'+contrast+'" opacity="0.6"/>';
+      }
+      inner += rosette(6,6) + rosette(18,18);
+    }
+    pat.setAttribute('width', w); pat.setAttribute('height', h);
+    pat.innerHTML = inner;
+  }
+
+  function fillRef(pattern){ return pattern==='solid' ? state.color : 'url(#fabricPattern)'; }
+
+  var GEO = { cx:200, shoulderY:112, shoulderHalfW:44, waistY:228, waistHalfW:23 };
+
+  function renderStage(){
+    var g = { cx:GEO.cx, shoulderY:GEO.shoulderY, shoulderHalfW:GEO.shoulderHalfW, waistY:GEO.waistY, waistHalfW:GEO.waistHalfW };
+    var lengthObj = LENGTHS.filter(function(l){return l.id===state.length;})[0];
+    var hemY = lengthObj.y;
+    g.hemY = hemY;
+
+    buildPatternDefs(state.color, state.pattern);
+    var fill = fillRef(state.pattern);
+
+    var body = bodicePath(g, state.neckline);
+
+    document.getElementById('gBodice').innerHTML =
+      '<path d="'+body.d+'" fill="'+fill+'" stroke="var(--ink)" stroke-width="2"/>' +
+      body.extra.map(function(p){ return '<path d="'+p+'" fill="none" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/>'; }).join('');
+
+    var skirtParts = skirtPath(g, state.silhouette);
+    document.getElementById('gSkirt').innerHTML = skirtParts.map(function(d,i){
+      var extraStroke = (state.silhouette==='tiered') ? ' stroke="var(--ink)" stroke-width="1.6"' : ' stroke="var(--ink)" stroke-width="2"';
+      return '<path d="'+d+'" fill="'+fill+'"'+extraStroke+'/>';
+    }).join('');
+
+    var leftSleeve = sleevePath(GEO.cx, GEO.shoulderHalfW, GEO.shoulderY, -1, state.sleeve, g.waistY);
+    var rightSleeve = sleevePath(GEO.cx, GEO.shoulderHalfW, GEO.shoulderY, 1, state.sleeve, g.waistY);
+    document.getElementById('gSleeves').innerHTML =
+      (leftSleeve ? '<path d="'+leftSleeve+'" fill="'+fill+'" stroke="var(--ink)" stroke-width="2"/>' : '') +
+      (rightSleeve ? '<path d="'+rightSleeve+'" fill="'+fill+'" stroke="var(--ink)" stroke-width="2"/>' : '');
+
+    var sx = GEO.cx, sy=GEO.shoulderY;
+    function handPoint(side){
+      if(state.sleeve==='long'){
+        var wristY = g.waistY-6;
+        return [sx+side*8, wristY];
+      }
+      return [sx+side*(GEO.shoulderHalfW-6), g.waistY+50];
+    }
+    var lh = handPoint(-1), rh = handPoint(1);
+    document.getElementById('gArms').innerHTML =
+      '<path d="M '+(sx-GEO.shoulderHalfW)+' '+sy+' Q '+(sx-GEO.shoulderHalfW-9)+' '+lerp(sy,lh[1],0.42)+' '+lh[0]+' '+lh[1]+'" class="croquis-line"/>' +
+      '<path d="M '+(sx+GEO.shoulderHalfW)+' '+sy+' Q '+(sx+GEO.shoulderHalfW+9)+' '+lerp(sy,rh[1],0.42)+' '+rh[0]+' '+rh[1]+'" class="croquis-line"/>' +
+      '<ellipse cx="'+lh[0]+'" cy="'+(lh[1]+6)+'" rx="4.5" ry="6.5" class="croquis-skin"/>' +
+      '<ellipse cx="'+rh[0]+'" cy="'+(rh[1]+6)+'" rx="4.5" ry="6.5" class="croquis-skin"/>';
+
+    document.getElementById('gJewelry').innerHTML =
+      necklaceMarkup(GEO.cx, 100, state.necklace, state.jewelryColor) +
+      earringMarkup(GEO.cx-19, GEO.cx+19, 68, state.earrings, state.jewelryColor) +
+      braceletMarkup(lh[0], lh[1]-4, state.bracelet, state.jewelryColor) +
+      braceletMarkup(rh[0], rh[1]-4, state.bracelet, state.jewelryColor);
+
+    var shoeL = shoePath(GEO.cx-11, 585, -1, state.shoe);
+    var shoeR = shoePath(GEO.cx+11, 585, 1, state.shoe);
+    function shoeMarkup(sp){
+      return sp.fills.map(function(d){ return '<path d="'+d+'" fill="'+state.shoeColor+'" stroke="var(--ink)" stroke-width="1.5"/>'; }).join('') +
+        sp.lines.map(function(d){ return '<path d="'+d+'" fill="none" stroke="'+state.shoeColor+'" stroke-width="1.5"/>'; }).join('');
+    }
+    document.getElementById('gLegs').innerHTML =
+      '<path d="M '+(GEO.cx-12)+' '+g.waistY+' Q '+(GEO.cx-16)+' 440 '+(GEO.cx-11)+' 585" class="croquis-line"/>' +
+      '<path d="M '+(GEO.cx+12)+' '+g.waistY+' Q '+(GEO.cx+16)+' 440 '+(GEO.cx+11)+' 585" class="croquis-line"/>' +
+      '<ellipse cx="'+(GEO.cx-11)+'" cy="592" rx="7" ry="4" class="croquis-skin"/>' +
+      '<ellipse cx="'+(GEO.cx+11)+'" cy="592" rx="7" ry="4" class="croquis-skin"/>' +
+      shoeMarkup(shoeL) + shoeMarkup(shoeR);
+
+    document.getElementById('gNeck').innerHTML =
+      '<path d="M '+(GEO.cx-8)+' 80 L '+(GEO.cx-8)+' 100" class="croquis-line" stroke-width="2"/>' +
+      '<path d="M '+(GEO.cx+8)+' 80 L '+(GEO.cx+8)+' 100" class="croquis-line" stroke-width="2"/>';
+
+    document.getElementById('gHead').innerHTML =
+      '<ellipse cx="'+GEO.cx+'" cy="54" rx="21" ry="25" class="croquis-skin"/>' +
+      earsMarkup(GEO.cx, 54, 21, 25, state.ears) +
+      hairPath(GEO.cx, 54, 21, 25, state.hair).map(function(d){
+        return '<path d="'+d+'" fill="'+state.hairColor+'"/>';
+      }).join('');
+
+    document.getElementById('gFace').innerHTML =
+      eyebrowsMarkup(GEO.cx, 54, 21, 25, state.eyebrows) +
+      eyesMarkup(GEO.cx, 54, 21, 25, state.eyes) +
+      noseMarkup(GEO.cx, 54, 21, 25, state.nose) +
+      mouthMarkup(GEO.cx, 54, 21, 25, state.mouth);
+
+    var wL=GEO.cx-GEO.waistHalfW, wR=GEO.cx+GEO.waistHalfW;
+    if(state.waist==='belt'){
+      document.getElementById('gWaist').innerHTML =
+        '<rect x="'+(wL-5)+'" y="'+(g.waistY-7)+'" width="'+(wR-wL+10)+'" height="14" rx="2" fill="var(--ink)"/>' +
+        '<rect x="'+(GEO.cx-6)+'" y="'+(g.waistY-5)+'" width="12" height="10" rx="1.5" fill="'+state.color+'" stroke="var(--paper)" stroke-width="1"/>';
+    } else if(state.waist==='bow'){
+      document.getElementById('gWaist').innerHTML =
+        '<rect x="'+(wL-5)+'" y="'+(g.waistY-6)+'" width="'+(wR-wL+10)+'" height="12" fill="'+fill+'" stroke="var(--ink)" stroke-width="1.5"/>' +
+        '<path d="M '+GEO.cx+' '+g.waistY+' L '+(GEO.cx-22)+' '+(g.waistY-11)+' Q '+(GEO.cx-30)+' '+g.waistY+' '+(GEO.cx-22)+' '+(g.waistY+11)+' Z" fill="'+fill+'" stroke="var(--ink)" stroke-width="1.5"/>' +
+        '<path d="M '+GEO.cx+' '+g.waistY+' L '+(GEO.cx+22)+' '+(g.waistY-11)+' Q '+(GEO.cx+30)+' '+g.waistY+' '+(GEO.cx+22)+' '+(g.waistY+11)+' Z" fill="'+fill+'" stroke="var(--ink)" stroke-width="1.5"/>' +
+        '<rect x="'+(GEO.cx-5)+'" y="'+(g.waistY-6)+'" width="10" height="12" rx="2" fill="var(--ink)"/>';
+    } else {
+      document.getElementById('gWaist').innerHTML = '';
+    }
+
+    updateTag();
+  }
+
+  function label(list, id){ var m=list.filter(function(o){return o.id===id;})[0]; return m?m.label:id; }
+
+  function updateTag(){
+    var colorObj = COLORS.filter(function(c){return c.hex.toLowerCase()===state.color.toLowerCase();})[0];
+    var colorName = colorObj ? colorObj.label : state.color.toUpperCase();
+    var jewelryParts = [];
+    if(state.necklace!=='none') jewelryParts.push(label(NECKLACES,state.necklace).toLowerCase()+' necklace');
+    if(state.earrings!=='none') jewelryParts.push(label(EARRINGS,state.earrings).toLowerCase()+' earrings');
+    if(state.bracelet!=='none') jewelryParts.push(label(BRACELETS,state.bracelet).toLowerCase()+' bracelet');
+    var desc = label(HAIRSTYLES,state.hair)+' hair · '+label(NECKLINES,state.neckline)+' neck · '+label(SLEEVES,state.sleeve).toLowerCase()+' sleeve · '+
+      label(SILHOUETTES,state.silhouette)+' '+label(LENGTHS,state.length).toLowerCase()+' in '+colorName+
+      (state.pattern!=='solid' ? ' '+label(PATTERNS,state.pattern).toLowerCase() : '') +
+      (state.shoe!=='bare' ? ' · '+label(SHOES,state.shoe).toLowerCase() : '') +
+      (jewelryParts.length ? ' · '+jewelryParts.join(', ') : '');
+    var hash = 0, str = JSON.stringify(state);
+    for(var i=0;i<str.length;i++){ hash = (hash*31 + str.charCodeAt(i)) >>> 0; }
+    var code = 'STYLE NO. ' + String(100 + (hash % 900));
+    document.getElementById('styleCode').textContent = code;
+    document.getElementById('styleDesc').textContent = desc;
+  }
+
+  function iconGeo(){ return {cx:30, shoulderY:16, shoulderHalfW:15, waistY:52, waistHalfW:8, hemY:74}; }
+
+  function hairIcon(id){
+    var parts = hairPath(30, 24, 14, 15, id);
+    return '<svg viewBox="0 0 60 84">' + parts.map(function(d){
+      return '<path d="'+d+'" fill="none" stroke="var(--ink-soft)" stroke-width="2"/>';
+    }).join('') + '</svg>';
+  }
+  function faceIconBase(){ return {cx:30, cy:26, rx:14, ry:15}; }
+  function faceRef(){ var g=faceIconBase(); return '<ellipse cx="'+g.cx+'" cy="'+g.cy+'" rx="'+g.rx+'" ry="'+g.ry+'" fill="none" stroke="var(--ink-faint)" stroke-width="1.3"/>'; }
+  function eyebrowsIcon(id){
+    var g = faceIconBase();
+    if(id==='none') return '<svg viewBox="0 0 60 84">'+faceRef()+'<line x1="'+(g.cx-9)+'" y1="'+(g.cy-4)+'" x2="'+(g.cx+9)+'" y2="'+(g.cy-4)+'" stroke="var(--ink-faint)" stroke-width="1.4" stroke-dasharray="2 2"/></svg>';
+    return '<svg viewBox="0 0 60 84">'+faceRef()+eyebrowsMarkup(g.cx,g.cy,g.rx,g.ry,id)+'</svg>';
+  }
+  function eyesIcon(id){
+    var g = faceIconBase();
+    if(id==='none') return '<svg viewBox="0 0 60 84">'+faceRef()+'<line x1="'+(g.cx-9)+'" y1="'+g.cy+'" x2="'+(g.cx+9)+'" y2="'+g.cy+'" stroke="var(--ink-faint)" stroke-width="1.4" stroke-dasharray="2 2"/></svg>';
+    return '<svg viewBox="0 0 60 84">'+faceRef()+eyesMarkup(g.cx,g.cy,g.rx,g.ry,id)+'</svg>';
+  }
+  function noseIcon(id){
+    var g = faceIconBase();
+    if(id==='none') return '<svg viewBox="0 0 60 84">'+faceRef()+'<line x1="'+g.cx+'" y1="'+(g.cy-3)+'" x2="'+g.cx+'" y2="'+(g.cy+6)+'" stroke="var(--ink-faint)" stroke-width="1.4" stroke-dasharray="2 2"/></svg>';
+    return '<svg viewBox="0 0 60 84">'+faceRef()+noseMarkup(g.cx,g.cy,g.rx,g.ry,id)+'</svg>';
+  }
+  function mouthIcon(id){
+    var g = faceIconBase();
+    if(id==='none') return '<svg viewBox="0 0 60 84">'+faceRef()+'<line x1="'+(g.cx-5)+'" y1="'+(g.cy+9)+'" x2="'+(g.cx+5)+'" y2="'+(g.cy+9)+'" stroke="var(--ink-faint)" stroke-width="1.4" stroke-dasharray="2 2"/></svg>';
+    return '<svg viewBox="0 0 60 84">'+faceRef()+mouthMarkup(g.cx,g.cy,g.rx,g.ry,id)+'</svg>';
+  }
+  function earsIcon(id){
+    var g = faceIconBase();
+    if(id==='none') return '<svg viewBox="0 0 60 84">'+faceRef()+'<line x1="'+(g.cx-g.rx-2)+'" y1="'+(g.cy+2)+'" x2="'+(g.cx-g.rx+3)+'" y2="'+(g.cy+2)+'" stroke="var(--ink-faint)" stroke-width="1.4" stroke-dasharray="2 2"/></svg>';
+    return '<svg viewBox="0 0 60 84">'+faceRef()+earsMarkup(g.cx,g.cy,g.rx,g.ry,id)+'</svg>';
+  }
+  function shoeIcon(id){
+    var sp = shoePath(30, 66, 1, id, 0.6);
+    if(id==='bare') return '<svg viewBox="0 0 60 84"><ellipse cx="30" cy="68" rx="6" ry="3.4" fill="none" stroke="var(--ink-faint)" stroke-width="1.6" stroke-dasharray="2 2"/></svg>';
+    return '<svg viewBox="0 0 60 84">' +
+      sp.fills.map(function(d){ return '<path d="'+d+'" fill="none" stroke="var(--ink-soft)" stroke-width="1.8"/>'; }).join('') +
+      sp.lines.map(function(d){ return '<path d="'+d+'" fill="none" stroke="var(--ink-soft)" stroke-width="1.8"/>'; }).join('') +
+      '</svg>';
+  }
+  function necklaceIcon(id){
+    if(id==='none') return '<svg viewBox="0 0 60 84"><line x1="20" y1="30" x2="40" y2="30" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="3 3"/></svg>';
+    return '<svg viewBox="0 0 60 84">'+necklaceMarkup(30, 26, id, 'var(--ink-soft)', 0.9)+'</svg>';
+  }
+  function earringsIcon(id){
+    if(id==='none') return '<svg viewBox="0 0 60 84"><line x1="20" y1="38" x2="40" y2="38" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="3 3"/></svg>';
+    return '<svg viewBox="0 0 60 84">'+earringMarkup(20, 40, 30, id, 'var(--ink-soft)', 1.4)+'</svg>';
+  }
+  function braceletIcon(id){
+    if(id==='none') return '<svg viewBox="0 0 60 84"><line x1="20" y1="42" x2="40" y2="42" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="3 3"/></svg>';
+    return '<svg viewBox="0 0 60 84">'+braceletMarkup(30, 42, id, 'var(--ink-soft)', 1.6)+'</svg>';
+  }
+  function necklineIcon(id){
+    var g = iconGeo();
+    var b = bodicePath(g, id);
+    return '<svg viewBox="0 0 60 84"><path d="'+b.d+'" fill="none" stroke="var(--ink-soft)" stroke-width="2.4"/></svg>';
+  }
+  function sleeveIcon(id){
+    var g = iconGeo();
+    var b = bodicePath(g, 'round');
+    var l = sleevePath(g.cx, g.shoulderHalfW, g.shoulderY, -1, id, g.waistY);
+    var r = sleevePath(g.cx, g.shoulderHalfW, g.shoulderY, 1, id, g.waistY);
+    return '<svg viewBox="0 0 60 84"><path d="'+b.d+'" fill="none" stroke="var(--ink-faint)" stroke-width="1.6"/>' +
+      (l?'<path d="'+l+'" fill="none" stroke="var(--ink-soft)" stroke-width="2.4"/>':'') +
+      (r?'<path d="'+r+'" fill="none" stroke="var(--ink-soft)" stroke-width="2.4"/>':'') + '</svg>';
+  }
+  function silhouetteIcon(id){
+    var g = iconGeo();
+    var parts = skirtPath(g, id);
+    return '<svg viewBox="0 0 60 84">' + parts.map(function(d){return '<path d="'+d+'" fill="none" stroke="var(--ink-soft)" stroke-width="2.2"/>';}).join('') + '</svg>';
+  }
+  function lengthIcon(y){
+    return '<svg viewBox="0 0 60 84"><path d="M 22 16 L 16 '+y+' L 44 '+y+' L 38 16 Z" fill="none" stroke="var(--ink-soft)" stroke-width="2.2"/></svg>';
+  }
+  function waistIcon(id){
+    if(id==='none') return '<svg viewBox="0 0 60 84"><line x1="20" y1="42" x2="40" y2="42" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="3 3"/></svg>';
+    if(id==='belt') return '<svg viewBox="0 0 60 84"><rect x="16" y="37" width="28" height="10" rx="1.5" fill="none" stroke="var(--ink-soft)" stroke-width="2.2"/></svg>';
+    return '<svg viewBox="0 0 60 84"><rect x="16" y="38" width="28" height="8" fill="none" stroke="var(--ink-soft)" stroke-width="2"/><path d="M30 42 L18 34 Q12 42 18 50 Z M30 42 L42 34 Q48 42 42 50 Z" fill="none" stroke="var(--ink-soft)" stroke-width="2"/></svg>';
+  }
+
+  function syncRadioState(container, activeEl){
+    var radios = container.querySelectorAll('[role="radio"]');
+    radios.forEach(function(c){ c.setAttribute('aria-checked','false'); c.setAttribute('tabindex','-1'); });
+    if(activeEl && activeEl.getAttribute('role')==='radio'){
+      activeEl.setAttribute('aria-checked','true');
+      activeEl.setAttribute('tabindex','0');
+    } else if(radios.length){
+      radios[0].setAttribute('tabindex','0');
+    }
+  }
+
+  function handleRadioKeydown(e){
+    var container = e.currentTarget;
+    var items = Array.prototype.slice.call(container.querySelectorAll('[role="radio"]'));
+    if(!items.length) return;
+    var idx = items.indexOf(document.activeElement);
+    if(idx===-1) return;
+    var next = null;
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'){ next = items[(idx+1)%items.length]; }
+    else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ next = items[(idx-1+items.length)%items.length]; }
+    else if(e.key==='Home'){ next = items[0]; }
+    else if(e.key==='End'){ next = items[items.length-1]; }
+    else if(e.key===' '||e.key==='Enter'){ e.preventDefault(); items[idx].click(); return; }
+    if(next){
+      e.preventDefault();
+      next.focus();
+      next.click();
+    }
+  }
+
+  function wireRadioGroup(el, labelId){
+    el.setAttribute('role','radiogroup');
+    if(labelId) el.setAttribute('aria-labelledby', labelId);
+    if(!el.dataset.keysWired){
+      el.addEventListener('keydown', handleRadioKeydown);
+      el.dataset.keysWired = '1';
+    }
+  }
+
+  function buildChips(containerId, list, iconFn, stateKey, labelId){
+    var el = document.getElementById(containerId);
+    wireRadioGroup(el, labelId);
+    el.innerHTML = list.map(function(o){
+      return '<div class="chip" data-key="'+stateKey+'" data-val="'+o.id+'" role="radio" tabindex="-1" aria-checked="false">'+iconFn(o.id, o)+'<span class="lbl">'+o.label+'</span></div>';
+    }).join('');
+    el.querySelectorAll('.chip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        state[stateKey] = chip.getAttribute('data-val');
+        markActive(el, chip);
+        renderStage();
+      });
+    });
+    markActiveByState(el, stateKey);
+  }
+
+  function markActive(container, activeEl){
+    container.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+    activeEl.classList.add('active');
+    syncRadioState(container, activeEl);
+  }
+  function markActiveByState(container, key){
+    var val = state[key];
+    var found = null;
+    container.querySelectorAll('[data-val]').forEach(function(c){
+      if(c.getAttribute('data-val')===val){ c.classList.add('active'); found = c; }
+    });
+    syncRadioState(container, found);
+  }
+
+  function buildSwatchRow(containerId, list, stateKey, customId, labelId, customLabel){
+    var el = document.getElementById(containerId);
+    wireRadioGroup(el, labelId);
+    var html = list.map(function(c){
+      return '<div class="chip" data-val="'+c.hex+'" role="radio" tabindex="-1" aria-checked="false" aria-label="'+c.label+'">'+
+        '<span class="swatch-dot" style="background:'+c.hex+'"></span>'+
+        '<span class="lbl">'+c.label+'</span></div>';
+    }).join('');
+    html += '<div class="chip chip-custom" title="Custom color">'+
+      '<span class="swatch-dot swatch-dot-custom" aria-hidden="true">&#43;</span>'+
+      '<input type="color" id="'+customId+'" aria-label="'+customLabel+'" value="'+state[stateKey]+'">'+
+      '<span class="lbl">Custom</span></div>';
+    el.innerHTML = html;
+    el.querySelectorAll('.chip[data-val]').forEach(function(sw){
+      sw.addEventListener('click', function(){
+        state[stateKey] = sw.getAttribute('data-val');
+        markActive(el, sw);
+        renderStage();
+      });
+    });
+    document.getElementById(customId).addEventListener('input', function(e){
+      state[stateKey] = e.target.value;
+      markActive(el, e.target.parentElement);
+      renderStage();
+    });
+    markActiveByState(el, stateKey);
+  }
+
+  function buildPatternRow(labelId){
+    var el = document.getElementById('patternRow');
+    wireRadioGroup(el, labelId);
+    el.innerHTML = PATTERNS.map(function(p){
+      return '<div class="chip" data-val="'+p.id+'" role="radio" tabindex="-1" aria-checked="false" aria-label="'+p.label+'">'+
+        '<span class="pattern-dot p-'+p.id+'"></span>'+
+        '<span class="lbl">'+p.label+'</span></div>';
+    }).join('');
+    el.querySelectorAll('.chip[data-val]').forEach(function(pc){
+      pc.addEventListener('click', function(){
+        state.pattern = pc.getAttribute('data-val');
+        markActive(el, pc);
+        renderStage();
+      });
+    });
+    markActiveByState(el, 'pattern');
+  }
+
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 1800);
+  }
+
+  function encodeState(){
+    return btoa(JSON.stringify(state));
+  }
+  function decodeState(hash){
+    try{
+      var s = JSON.parse(atob(hash));
+      Object.keys(state).forEach(function(k){ if(s[k]!==undefined) state[k]=s[k]; });
+      return true;
+    } catch(e){ return false; }
+  }
+
+  document.getElementById('randomizeBtn').addEventListener('click', function(){
+    state.hair = HAIRSTYLES[Math.floor(Math.random()*HAIRSTYLES.length)].id;
+    state.hairColor = HAIRCOLORS[Math.floor(Math.random()*HAIRCOLORS.length)].hex;
+    state.eyebrows = EYEBROWS[Math.floor(Math.random()*EYEBROWS.length)].id;
+    state.eyes = EYES[Math.floor(Math.random()*EYES.length)].id;
+    state.ears = EARS[Math.floor(Math.random()*EARS.length)].id;
+    state.nose = NOSE[Math.floor(Math.random()*NOSE.length)].id;
+    state.mouth = MOUTH[Math.floor(Math.random()*MOUTH.length)].id;
+    state.neckline = NECKLINES[Math.floor(Math.random()*NECKLINES.length)].id;
+    state.sleeve = SLEEVES[Math.floor(Math.random()*SLEEVES.length)].id;
+    state.silhouette = SILHOUETTES[Math.floor(Math.random()*SILHOUETTES.length)].id;
+    state.length = LENGTHS[Math.floor(Math.random()*LENGTHS.length)].id;
+    state.waist = WAISTS[Math.floor(Math.random()*WAISTS.length)].id;
+    state.necklace = NECKLACES[Math.floor(Math.random()*NECKLACES.length)].id;
+    state.earrings = EARRINGS[Math.floor(Math.random()*EARRINGS.length)].id;
+    state.bracelet = BRACELETS[Math.floor(Math.random()*BRACELETS.length)].id;
+    state.jewelryColor = JEWELRYCOLORS[Math.floor(Math.random()*JEWELRYCOLORS.length)].hex;
+    state.color = COLORS[Math.floor(Math.random()*COLORS.length)].hex;
+    state.pattern = PATTERNS[Math.floor(Math.random()*PATTERNS.length)].id;
+    state.shoe = SHOES[Math.floor(Math.random()*SHOES.length)].id;
+    state.shoeColor = SHOECOLORS[Math.floor(Math.random()*SHOECOLORS.length)].hex;
+    rebuildAll();
+  });
+
+  document.getElementById('shareBtn').addEventListener('click', function(){
+    var url = location.origin + location.pathname + '#look=' + encodeState();
+    history.replaceState(null, '', '#look=' + encodeState());
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(
+        function(){ showToast('Link copied'); },
+        function(){ showToast("Couldn't copy — link is in your address bar"); }
+      );
+    } else {
+      showToast("Copy not supported — link is in your address bar");
+    }
+  });
+
+  document.getElementById('themeToggle').addEventListener('click', function(e){
+    var btn = e.target.closest('button');
+    if(!btn) return;
+    var t = btn.getAttribute('data-t');
+    if(t==='system'){ document.documentElement.removeAttribute('data-theme'); }
+    else { document.documentElement.setAttribute('data-theme', t); }
+    Array.prototype.forEach.call(document.getElementById('themeToggle').children, function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  });
+
+  function rebuildAll(){
+    buildChips('hairRow', HAIRSTYLES, hairIcon, 'hair', 'hairLabel');
+    buildSwatchRow('hairColorRow', HAIRCOLORS, 'hairColor', 'customHairColor', 'hairColorLabel', 'Custom hair color');
+    buildChips('eyebrowsRow', EYEBROWS, eyebrowsIcon, 'eyebrows', 'eyebrowsLabel');
+    buildChips('eyesRow', EYES, eyesIcon, 'eyes', 'eyesLabel');
+    buildChips('earsRow', EARS, earsIcon, 'ears', 'earsLabel');
+    buildChips('noseRow', NOSE, noseIcon, 'nose', 'noseLabel');
+    buildChips('mouthRow', MOUTH, mouthIcon, 'mouth', 'mouthLabel');
+    buildChips('necklineRow', NECKLINES, necklineIcon, 'neckline', 'necklineLabel');
+    buildChips('sleeveRow', SLEEVES, sleeveIcon, 'sleeve', 'sleeveLabel');
+    buildChips('silhouetteRow', SILHOUETTES, silhouetteIcon, 'silhouette', 'silhouetteLabel');
+    buildChips('lengthRow', LENGTHS.map(function(l){return {id:l.id,label:l.label,y:l.y};}), function(id,o){return lengthIcon(o.y*0.135+6);}, 'length', 'lengthLabel');
+    buildChips('waistRow', WAISTS, waistIcon, 'waist', 'waistLabel');
+    buildChips('necklaceRow', NECKLACES, necklaceIcon, 'necklace', 'necklaceLabel');
+    buildChips('earringsRow', EARRINGS, earringsIcon, 'earrings', 'earringsLabel');
+    buildChips('braceletRow', BRACELETS, braceletIcon, 'bracelet', 'braceletLabel');
+    buildSwatchRow('jewelryColorRow', JEWELRYCOLORS, 'jewelryColor', 'customJewelryColor', 'jewelryColorLabel', 'Custom jewelry color');
+    buildChips('shoeRow', SHOES, shoeIcon, 'shoe', 'shoeLabel');
+    buildSwatchRow('shoeColorRow', SHOECOLORS, 'shoeColor', 'customShoeColor', 'shoeColorLabel', 'Custom shoe color');
+    buildSwatchRow('colorRow', COLORS, 'color', 'customColor', 'colorLabel', 'Custom fabric color');
+    buildPatternRow('patternLabel');
+    renderStage();
+  }
+
+  var hash = location.hash.match(/look=([^&]+)/);
+  if(hash) decodeState(hash[1]);
+
+  rebuildAll();
+})();
+</script>
